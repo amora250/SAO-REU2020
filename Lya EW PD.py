@@ -38,14 +38,18 @@ xHI5= 0.01
 # Load ln p(W) table
 lnpW_file = '/Users/alexamia/Desktop/SAO REU 2020/M18_z=7.0_lnpWobs_Muv/ln_pWobs_xHI=%.2f.txt' % xHI
 lnpW_tab = load_pW_pandas(lnpW_file) ## Passed lnpW_file to plot lnpW_tab using plt
+
 lnpW_file2 = '/Users/alexamia/Desktop/SAO REU 2020/M18_z=7.0_lnpWobs_Muv/ln_pWobs_xHI=%.2f.txt' % xHI2
-lnpW_tab2 = load_pW_pandas(lnpW_file2) ## Passed lnpW_file to plot lnpW_tab using plt
+lnpW_tab2 = load_pW_pandas(lnpW_file2) 
+
 lnpW_file3 = '/Users/alexamia/Desktop/SAO REU 2020/M18_z=7.0_lnpWobs_Muv/ln_pWobs_xHI=%.2f.txt' % xHI3
-lnpW_tab3 = load_pW_pandas(lnpW_file3) ## Passed lnpW_file to plot lnpW_tab using plt
+lnpW_tab3 = load_pW_pandas(lnpW_file3) 
+
 lnpW_file4 = '/Users/alexamia/Desktop/SAO REU 2020/M18_z=7.0_lnpWobs_Muv/ln_pWobs_xHI=%.2f.txt' % xHI4
-lnpW_tab4 = load_pW_pandas(lnpW_file4) ## Passed lnpW_file to plot lnpW_tab using plt
+lnpW_tab4 = load_pW_pandas(lnpW_file4) 
+
 lnpW_file5 = '/Users/alexamia/Desktop/SAO REU 2020/M18_z=7.0_lnpWobs_Muv/ln_pWobs_xHI=%.2f.txt' % xHI5
-lnpW_tab5 = load_pW_pandas(lnpW_file5) ## Passed lnpW_file to plot lnpW_tab using plt
+lnpW_tab5 = load_pW_pandas(lnpW_file5) 
 
 
 
@@ -57,7 +61,10 @@ plt.figure(figsize=(5,5))
 
 ##original README code was giving a syntax error with second part of plt.plot that had lnpW_tab[f'{Muv}'] 
 ## so I replaced it with the 2 Muv's used in Fig. 7 of Mason+18 and got the following graph below 
+
 #plt.plot(lnpW_tab['W'],lnpW_tab['f{Muv:.1f}']) 
+
+#Data with Muv= -18.0
 plt.plot(lnpW_tab['W'],lnpW_tab['-18.0'],label='$\overline{x}_\mathrm{HI}=0.66$',color='blue') 
 plt.plot(lnpW_tab2['W'], lnpW_tab2['-18.0'],label='$\overline{x}_\mathrm{HI}=0.05$', color='black')
 plt.plot(lnpW_tab3['W'], lnpW_tab3['-18.0'],label='$\overline{x}_\mathrm{HI}=0.36$', color='green')
@@ -71,11 +78,11 @@ L3 = mlines.Line2D([], [], label='$\overline{x}_\mathrm{HI}=0.36$', color='green
 L4 = mlines.Line2D([], [], label='$\overline{x}_\mathrm{HI}=0.66$',color='blue')
 L5 = mlines.Line2D([], [], label='$\overline{x}_\mathrm{HI}=0.87$', color='pink')
 FL = plt.legend(handles=[L1,L2,L3,L4,L5], loc='upper right',frameon=False)
-# Add the legend manually to the current Axes.
+# Add the legend manually to the current axes
 ax = plt.gca().add_artist(FL)
 
 
-
+#Data with Muv= -22.0
 plt.plot(lnpW_tab['W'],lnpW_tab['-22.0'],linestyle='dashed',color='blue')
 plt.plot(lnpW_tab2['W'], lnpW_tab2['-22.0'],linestyle='dashed', color='black')
 plt.plot(lnpW_tab3['W'], lnpW_tab3['-22.0'],linestyle='dashed', color='green')
