@@ -157,7 +157,7 @@ def plot_emcee_draws(sampler, logL, LF_logL, Ndraw=100,
     Plot draws from emcee
     """
     
-    plt.annotate('best-fit: '+', '.join(f'{l}' for l in labels), xy=(0.05,0.25), xycoords='axes fraction')
+    plt.annotate('best-fit: '+', '.join(f'{l}' for l in labels), xy=(0.05,0.25),xycoords='axes fraction')
 
     # input model LF
     plt.semilogy(logL, LF_logL, zorder=Ndraw, label='input')
