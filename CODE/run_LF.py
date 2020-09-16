@@ -83,10 +83,20 @@ O_data_dir = os.environ['LYA_DATA_DIR']+'data/models/'
 O_dir = pW_data_dir+'Lya_LF_Ouchi/' 
 O_files = sorted(insensitive_glob(O_dir+'Lya_LF_Ouchi_z*.txt')) 
 
+#Calling Santos data file
+S_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+S_dir = pW_data_dir+'Lya_LF_Santos/' 
+S_files = sorted(insensitive_glob(S_dir+'Lya_LF_Santos_z*.txt')) 
+
 #Calling Luminosity Density info
 LD_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 LD_dir = pW_data_dir+'LD/' 
 LD_files = sorted(insensitive_glob(LD_dir+'LD_info.txt')) 
+
+#Calling Shibuya data file
+Sh_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+Sh_dir = pW_data_dir+'Lya_LF_Shibuya/' 
+Sh_files = sorted(insensitive_glob(S_dir+'Lya_LF_Shibuya_z*.txt')) 
 
 
 
@@ -122,7 +132,7 @@ def plot_jvsMuv(jacobian, Muv_EW, zval_test):
     plt.title('Jacobian vs $M_\mathrm{UV}$ for a Given Redshift ')
     return
 
-def konno_data_plt(zval_test, plot = False):
+def konno_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Konno+18,+14 to fit model
     
@@ -154,10 +164,44 @@ def konno_data_plt(zval_test, plot = False):
 
         plt.semilogy(Ko_tab['log(L)'], 10**(Ko_tab['log(ndens)']),color=my_color, alpha=0.5, marker='o', lw=0)
         plt.errorbar(Ko_tab['log(L)'], 10**(Ko_tab['log(ndens)']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
-    return Ko_L, Ko_ndens, yerror_mean
+        
+    if mean == True:
+        return Ko_L, Ko_ndens, yerror_mean
+    else:
+        return Ko_L, Ko_ndens, yerror
+
+def santos_data_plt(zval_test, plot = False):
+    '''
+    Plots observational Lya LF data from Santos+16 to fit model
+    
+    '''
+    S_file = sorted(insensitive_glob(S_dir+f'Lya_LF_Santos_z*{zval_test}.txt'))[0]
+    Sa_tab = load_uvf_pandas(S_file)
+    
+   
+    yerr_l = 10**(Sa_tab['log(ndens)']) - 10**(Sa_tab['ndens_l2']) 
+    yerr_u = 10**(Sa_tab['ndens_u2']) - 10**(Sa_tab['log(ndens)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    Sa_ndens = np.array(10**(Sa_tab['log(ndens)']))
+    Sa_L = np.array(Sa_tab['log(L)'])
+    yerror_mean = np.mean(yerror,axis=0)
+    
+
+    if plot==True:
+        if zval_test == 5.7:
+            my_color = 'blue'
+            label2 = 'Santos+16'
+        elif zval_test == 6.6:
+            my_color = 'red'
+            label2 = 'Santos+16'
 
 
-def ouchi_data_plt(zval_test, plot = False):
+        plt.semilogy(Sa_tab['log(L)'], 10**(Sa_tab['log(ndens)']),color=my_color, alpha=0.5, marker='*', lw=0)
+        plt.errorbar(Sa_tab['log(L)'], 10**(Sa_tab['log(ndens)']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
+    return Sa_L, Sa_ndens, yerror_mean
+
+def ouchi_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Ouchi+08,+10 to fit model
     
@@ -165,11 +209,11 @@ def ouchi_data_plt(zval_test, plot = False):
     O_file = sorted(insensitive_glob(O_dir+f'Lya_LF_Ouchi_z*{zval_test}_ndens.txt'))[0]
     Ou_tab = load_uvf_pandas(O_file)
 
-    yerror2 = np.array([Ou_tab['error_l'],Ou_tab['error_u']])
+    yerror = np.array([Ou_tab['error_l'],Ou_tab['error_u']])
     
     Ou_ndens = np.array((Ou_tab['ndens']))
     Ou_L = np.array(Ou_tab['log(L)'])
-    yerror_mean2 = np.mean(yerror2,axis=0)
+    yerror_mean = np.mean(yerror,axis=0)
 
 
     if plot==True:
@@ -184,7 +228,48 @@ def ouchi_data_plt(zval_test, plot = False):
 
         plt.semilogy(Ou_tab['log(L)'], (Ou_tab['ndens']),color=my_color, alpha=0.5, marker='^', lw=0)
         plt.errorbar(Ou_tab['log(L)'], (Ou_tab['ndens']),yerr=[Ou_tab['error_l'],Ou_tab['error_u']], fmt = ' ',capsize=5, color=my_color)
-    return Ou_L, Ou_ndens, yerror_mean2
+    
+    if mean==True:
+        return Ou_L, Ou_ndens, yerror_mean
+    else:
+        return Ou_L, Ou_ndens, yerror
+    
+def shibuya_data_plt(zval_test, plot = False, mean = False):
+    '''
+    Plots observational Lya LF data from Shibuya+12 to fit model
+    
+    '''
+    Sh_file = sorted(insensitive_glob(Sh_dir+f'Lya_LF_Shibuya_z*{zval_test}.txt'))[0]
+    Sh_tab = load_uvf_pandas(Sh_file)
+
+    
+    yerr_l = (Sh_tab['ndens']) - (Sh_tab['error_l']) 
+    yerr_u = (Sh_tab['error_u']) - (Sh_tab['ndens'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    xerr_l = (Sh_tab['log(L)']) - (Sh_tab['log(L)_l']) 
+    xerr_u = (Sh_tab['log(L)_u']) - (Sh_tab['log(L)'])
+    xerror = np.array([xerr_l,xerr_u])
+    
+    Sh_ndens = np.array((Sh_tab['ndens']))
+    Sh_L = np.array(Sh_tab['log(L)'])
+    
+    yerror_mean = np.mean(yerror,axis=0)
+
+
+    if plot==True:
+        if zval_test == 7.3:
+            my_color = 'orange'
+            label2 = 'Shibuya+12'
+
+        plt.semilogy(Sh_tab['log(L)'], (Sh_tab['ndens']),color=my_color, alpha=0.5, marker='p', lw=0)
+        plt.errorbar(Sh_tab['log(L)'], (Sh_tab['ndens']),yerr=yerror, xerr = xerror, fmt = ' ',capsize=5, color=my_color)
+        #xerr = [Sh_tab['log(L)_l'],Sh_tab['log(L)_u']],
+    
+    if mean==True:
+        return Sh_L, Sh_ndens, yerror_mean
+    else:
+        return Sh_L, Sh_ndens, yerror
 
 
 def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
@@ -351,11 +436,27 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
     
     #Plotting Information
     if plot == True:
-        #Plot Konno info 
-        konno_data_plt(zval_test, plot = True)
+        if zval_test == 5.7:
+            
+            #Plot Konno info 
+            konno_data_plt(zval_test, plot = True, mean = False)
+
+            #Plot Ouchi info
+            ouchi_data_plt(zval_test, plot = True, mean = False)
+        elif zval_test == 6.6:
+            
+            #Plot Konno info 
+            konno_data_plt(zval_test, plot = True, mean = False)
+
+            #Plot Ouchi info
+            ouchi_data_plt(zval_test, plot = True, mean = False)            
         
-        #Plot Ouchi info
-        ouchi_data_plt(zval_test, plot = True)
+        elif zval_test == 7.3:
+            #Plot Konno info 
+            konno_data_plt(zval_test, plot = True, mean = False)
+            
+            #Plot Shibuya info
+            shibuya_data_plt(zval_test, plot = True, mean = False)
 
 #         #Jacobian vs Muv plot info
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
@@ -373,3 +474,77 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
     else:
         return F*lya_LF
 
+
+    
+#Minimization of xHI
+#Line models used for z = 6.6, 7.3
+
+def xHI_model(xHI, obs_L, zval=6.6):
+    """
+    Evaluate a straight line model at the input Konno luminosity values.
+    
+    Parameters
+    ----------
+    F : list, array
+        This should be a length-2 array or list containing the 
+        parameter values (a, b) for the (slope, intercept).
+    new_phi_Li : numeric, list, array
+        The coordinate values.
+        
+    Returns
+    -------
+    new_phi_Li : array
+        The computed y values at each input x.
+    """
+    #Interpolating Konno and lum grid 
+    xHI_LF_calibrate = make_lya_LF(zval_test = zval, xHI_test = xHI, F = 0.615, plot=False,log=True)   
+    LF_interp = interpolate.interp1d(log10_lg, xHI_LF_calibrate)
+    new_phi_Li = LF_interp(obs_L)
+    
+    return new_phi_Li
+
+def xHI_weighted_squared_deviation(xHI,z = 6.6):
+    """
+    Chi = Konno, Ouchi ndens values - our ndens values at corresponding Konno, Ouchi lum grid * xHI model WRT xHI, obs. values, z
+    Compute the weighted squared deviation between the data 
+    (x, y, y_err) and the model points computed with the input 
+    parameters (F).
+    """
+    if type(xHI) == float:
+    #print singular value
+        Ko_L, Ko_ndens, yerror = konno_data_plt(zval_test= z, plot = False, mean = False) #Defined here rather than as func. parameters
+        xHI_chi_Ko = (Ko_ndens - xHI_model(xHI, obs_L = Ko_L, zval=z)) / yerror
+
+        if z == 6.6:
+            
+            Ou_L, Ou_ndens, yerror = ouchi_data_plt(zval_test=z, plot = False, mean = False) #Defined here rather than as func. parameters
+            xHI_chi_Ou = (Ou_ndens - xHI_model(xHI, obs_L = Ou_L,zval=z)) / yerror
+
+
+            return np.sum(xHI_chi_Ko**2) + np.sum(xHI_chi_Ou**2)
+        else:
+            return np.sum(xHI_chi_Ko**2) 
+    else:
+        #prints list of values
+        chi2=[]
+        for x in xHI:
+            #Finding nearest neighbor to values in xHI array 
+
+            idx = (np.abs(xHI_list - x)).argmin()
+            xHI_grid_match = xHI_list[idx]
+
+            
+            Ko_L, Ko_ndens, yerror= konno_data_plt(zval_test= z, plot = False, mean = False) #Defined here rather than as func. parameters
+            xHI_chi_Ko = (Ko_ndens - xHI_model(xHI_grid_match, obs_L = Ko_L, zval=z)) / yerror
+
+            if z == 6.6:
+                Ou_L, Ou_ndens, yerror = ouchi_data_plt(zval_test=z, plot = False, mean = False) #Defined here rather than as func. parameters
+                xHI_chi_Ou = (Ou_ndens - xHI_model(xHI_grid_match, obs_L = Ou_L,zval=z)) / yerror
+
+
+                chi2.append(np.sum(xHI_chi_Ko**2) + np.sum(xHI_chi_Ou**2))
+            else:
+                chi2.append(np.sum(xHI_chi_Ko**2))
+        return np.array(chi2)
+    
+    
