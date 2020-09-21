@@ -108,6 +108,11 @@ Ot_data_dir = os.environ['LYA_DATA_DIR']+'data/models/'
 Ot_dir = pW_data_dir+'Lya_LF_Ota/' 
 Ot_files = sorted(insensitive_glob(Ot_dir+'Lya_LF_Ota_z*.txt'))
 
+#Calling Itoh data file
+It_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+It_dir = pW_data_dir+'Lya_LF_Itoh/' 
+It_files = sorted(insensitive_glob(It_dir+'Lya_LF_Itoh_z*.txt'))
+
 
 #Plot UV LF values vs interpolated Muv that is the same as EW 
 def plot_UV_LF(Muv_EW,new_ndens):
@@ -292,7 +297,7 @@ def zheng_data_plt(zval_test, plot = False, mean = False):
 #     yerr_l = 10**(Z_tab['log(ndens)']) - 10**(Z_tab['ndens_l2']) 
 #     yerr_u = 10**(Z_tab['ndens_u2']) - 10**(Z_tab['log(ndens)'])
     yerror = np.array([Z_tab['error_l'],Z_tab['error_u']])
-#     yerr_l = (Z_tab['ndens']) - (Z_tab['error_l']) 
+#     yerr_l = (Z_tab['ndens ']) - (Z_tab['error_l']) 
 #     yerr_u = (Z_tab['error_u']) - (Z_tab['ndens'])
 #     yerror = np.array([yerr_l,yerr_u])
     
@@ -308,7 +313,7 @@ def zheng_data_plt(zval_test, plot = False, mean = False):
             label2 = 'Zheng+17'
 
 
-        plt.semilogy(Z_tab['log(L)'], Z_tab['ndens'],color=my_color, alpha=0.5, marker='o', lw=0)
+        plt.semilogy(Z_tab['log(L)'], Z_tab['ndens'],color=my_color, alpha=0.5, marker='^', lw=0)
         plt.errorbar(Z_tab['log(L)'], Z_tab['ndens'],yerr=yerror, fmt = ' ',capsize=5, color=my_color)
         
     if mean == True:
@@ -318,13 +323,15 @@ def zheng_data_plt(zval_test, plot = False, mean = False):
                   
 def ota_data_plt(zval_test, plot = False, mean = False):
     '''
-    Plots observational Lya LF data from Ota+10 to fit model
+    Plots observational Lya LF data from Ota+17 to fit model
     
     '''
     Ot_file = sorted(insensitive_glob(Ot_dir+f'Lya_LF_Ota_z*{zval_test}.txt'))[0]
     Ot_tab = load_uvf_pandas(Ot_file)
 
-    yerror = np.array([Ot_tab['error_l'],Ot_tab['error_u']])
+    yerr_l = (Ot_tab['ndens']) - (Ot_tab['error_l']) 
+    yerr_u = (Ot_tab['error_u']) - (Ot_tab['ndens'])
+    yerror = np.array([yerr_l,yerr_u])
     
     Ot_ndens = np.array((Ot_tab['ndens']))
     Ot_L = np.array(Ot_tab['log(L)'])
@@ -334,16 +341,48 @@ def ota_data_plt(zval_test, plot = False, mean = False):
     if plot==True:
         if zval_test == 7.0:
             my_color = 'green'
-            label2 = 'Ota+10'
+            label2 = 'Ota+17'
 
 
-        plt.semilogy(Ot_tab['log(L)'], (Ot_tab['ndens']),color=my_color, alpha=0.5, marker='^', lw=0)
-        plt.errorbar(Ot_tab['log(L)'], (Ot_tab['ndens']),yerr=[Ot_tab['error_l'],Ot_tab['error_u']], fmt = ' ',capsize=5, color=my_color)
+        plt.semilogy(Ot_tab['log(L)'], (Ot_tab['ndens']),color=my_color, alpha=0.5, marker='s', lw=0)
+        plt.errorbar(Ot_tab['log(L)'], (Ot_tab['ndens']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
     
     if mean==True:
         return Ot_L, Ot_ndens, yerror_mean
     else:
-        return Ot_L, Ot_ndens, yerror                  
+        return Ot_L, Ot_ndens, yerror        
+    
+def itoh_data_plt(zval_test, plot = False, mean = False):
+    '''
+    Plots observational Lya LF data from Itoh+18 to fit model
+    
+    '''
+    It_file = sorted(insensitive_glob(It_dir+f'Lya_LF_Itoh_z*{zval_test}.txt'))[0]
+    It_tab = load_uvf_pandas(It_file)
+
+#     yerr_l = (It_tab['ndens']) - (It_tab['error_l']) 
+#     yerr_u = (It_tab['error_u']) - (It_tab['ndens'])
+#     yerror = np.array([yerr_l,yerr_u])
+    yerror = np.array([It_tab['error_l'],It_tab['error_u']])
+    
+    It_ndens = np.array((It_tab['ndens']))
+    It_L = np.array(It_tab['log(L)'])
+    yerror_mean = np.mean(yerror,axis=0)
+
+
+    if plot==True:
+        if zval_test == 7.0:
+            my_color = 'green'
+            label2 = 'Itoh+18'
+
+
+        plt.semilogy(It_tab['log(L)'], (It_tab['ndens']),color=my_color, alpha=0.5, marker='o', lw=0)
+        plt.errorbar(It_tab['log(L)'], (It_tab['ndens']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
+    
+    if mean==True:
+        return It_L, It_ndens, yerror_mean
+    else:
+        return It_L, It_ndens, yerror      
                   
                   
 #Functions for plotting                  
@@ -540,6 +579,9 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
             
             #Plot Ota info
             ota_data_plt(zval_test, plot = True, mean = False)
+            
+            #Plot Itoh info
+            itoh_data_plt(zval_test, plot = True, mean = False)
 
 #         #Jacobian vs Muv plot info
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
@@ -645,5 +687,7 @@ def xHI_weighted_squared_deviation(xHI,z = 6.6):
 
                 
         return np.array(chi2)
-    
+
+
+
     
