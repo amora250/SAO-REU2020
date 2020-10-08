@@ -46,7 +46,7 @@ def insensitive_glob(pattern):
         return '[%s%s]'%(c.lower(),c.upper()) if c.isalpha() else c
     return glob.glob(''.join(map(either,pattern)))
 
-#Function used to load files
+#Function used to load filess
 def load_uvf_pandas(ufl_filename): 
     """
     Load table into pandas df
@@ -622,7 +622,7 @@ def xHI_model(xHI, obs_L, zval=6.6):
         The computed y values at each input x.
     """
     #Interpolating Konno and lum grid 
-    xHI_LF_calibrate = make_lya_LF(zval_test = zval, xHI_test = xHI, F = 0.615, plot=False,log=True)   
+    xHI_LF_calibrate = make_lya_LF(zval_test = zval, xHI_test = xHI, F = 0.667, plot=False,log=True)   
     LF_interp = interpolate.interp1d(log10_lg, xHI_LF_calibrate)
     new_phi_Li = LF_interp(obs_L)
     
