@@ -113,6 +113,11 @@ It_data_dir = os.environ['LYA_DATA_DIR']+'data/models/'
 It_dir = pW_data_dir+'Lya_LF_Itoh/' 
 It_files = sorted(insensitive_glob(It_dir+'Lya_LF_Itoh_z*.txt'))
 
+#Calling Hu data file
+Hu_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+Hu_dir = pW_data_dir+'Lya_LF_Hu/' 
+Hu_files = sorted(insensitive_glob(Hu_dir+'Lya_LF_Hu_z*.txt'))
+
 
 #Plot UV LF values vs interpolated Muv that is the same as EW 
 def plot_UV_LF(Muv_EW,new_ndens):
@@ -184,6 +189,41 @@ def konno_data_plt(zval_test, plot = False, mean = False):
         return Ko_L, Ko_ndens, yerror_mean
     else:
         return Ko_L, Ko_ndens, yerror
+
+
+def hu_data_plt(zval_test, plot = False, mean = False):
+    '''
+    Plots observational Lya LF data from Hu+19 to fit model
+    
+    '''
+    Hu_file = sorted(insensitive_glob(Hu_dir+f'Lya_LF_Hu_z*{zval_test}.txt'))[0]
+    Hu_tab = load_uvf_pandas(Hu_file)
+    
+   
+    yerr_l = 10**(Hu_tab['log(ndens)']) - 10**(Hu_tab['error_l2']) 
+    yerr_u = 10**(Hu_tab['error_u2']) - 10**(Hu_tab['log(ndens)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    Hu_ndens = np.array(10**(Hu_tab['log(ndens)']))
+    Hu_L = np.array(Hu_tab['log(L)'])
+    yerror_mean = np.mean(yerror,axis=0)
+    
+
+    if plot==True:
+        if zval_test == 7.0:
+            my_color = 'green'
+            label2 = 'Hu+19'
+
+
+
+        plt.semilogy(Hu_tab['log(L)'], 10**(Hu_tab['log(ndens)']),color=my_color, alpha=0.5, marker='*', lw=0)
+        plt.errorbar(Hu_tab['log(L)'], 10**(Hu_tab['log(ndens)']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
+        
+    if mean == True:
+        return Hu_L, Hu_ndens, yerror_mean
+    else:
+        return Hu_L, Hu_ndens, yerror    
+
 
 def santos_data_plt(zval_test, plot = False):
     '''
@@ -574,14 +614,17 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
 #             shibuya_data_plt(zval_test, plot = True, mean = False)
         
         elif zval_test == 7.0:
-            #Plot Zheng info
-            zheng_data_plt(zval_test, plot = True, mean = False)
+#             #Plot Zheng info
+#             zheng_data_plt(zval_test, plot = True, mean = False)
             
             #Plot Ota info
             ota_data_plt(zval_test, plot = True, mean = False)
             
             #Plot Itoh info
             itoh_data_plt(zval_test, plot = True, mean = False)
+            
+            #Plot Hu info
+            hu_data_plt(zval_test, plot = True, mean = False)
 
 #         #Jacobian vs Muv plot info
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
