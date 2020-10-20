@@ -19,7 +19,8 @@ mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
 
 #Constants
-Muv_array = np.array([-22.0,-16.0]) #chosen Muv to test lum_lya vs Muv similar to EW vs Muv
+xHI_array = np.array([0.01, 0.36, 0.87])
+Muv_array = np.array([-22.0,-19.5]) #chosen Muv to test lum_lya vs Muv similar to EW vs Muv
 beta = -2.0 #usually -2 for high z galaxies as per spectrum as power law
 pc_10 = 10 * u.pc #1 pc to Mpc
 wl_lya = 1216 * u.Angstrom #angstrom
@@ -436,32 +437,36 @@ def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
 
     return 
 
-def LvsPLya(Muv_array, zval_test, lum_lya, norm_pLya, new_pLya):
+def LvsPLya(Muv_array,xHI_array, zval_test, lum_lya, norm_pLya, new_pLya):
     '''
     Still needs to be fixed, new plot created with old code formatting!
     
     Plots relationship between Lum. and P(Lum.) for different Muv and xHI values
     '''
-    
-    for mm,Muv in enumerate (Muv_array):
-            if mm == 0: #first item in Muv_array, i.e. -18.0
-                ls = 'solid'
-                label = 'z = %.1f'%zval_test
-            elif mm == 1: #second item in Muv_array, i.e. -22.0 (will not show on xHI legend)
-                ls = 'dashed'
-                label = None
-            elif mm == 2: # Third item in Muv_array, i.e. -16.0
-                ls = 'dashdot'
-                plt.loglog(lum_lya[:,mm], norm_pLya[:,mm], ls=ls, color = my_color, label = label) #[:,mm] gets corresponding column than row [mm]
-                plt.plot(lum_grid, new_pLya[:,mm], ls=ls, color = 'blue')
+    for xHI in xHI_array:
+        for mm,Muv in enumerate (Muv_array):
+                if mm == 0: #first item in Muv_array, i.e. -18.0
+                    ls = 'solid'
+                    label = 'z = %.1f'%zval_test
+                    my_color = 'black'
+                elif mm == 1: #second item in Muv_array, i.e. -22.0 (will not show on xHI legend)
+                    ls = 'dashed'
+                    label = None
+                    my_color = 'purple'
+                elif mm == 2: # Third item in Muv_array, i.e. -16.0
+                    ls = 'dashdot'
+                    label = None
+                    my_color = 'gray'
+                    plt.loglog(lum_lya[:,mm], norm_pLya[:,mm], ls=ls, color = my_color, label = label) #[:,mm] gets corresponding column than row [mm]
+                    plt.plot(lum_grid, new_pLya[:,mm], ls=ls, color = 'blue')
 
     leg_zval = plt.legend(frameon=False, handletextpad=0.5)
     plt.gca().add_artist(leg_zval)
     #This is the legend for Muv values, -18.0 is solid, -22.0 is dashed, -16.0 is dash-dot
     line2 = mlines.Line2D([], [], color='k', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[0])
     line3 = mlines.Line2D([], [], color='k', ls='dashed', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[1])
-    line1 = mlines.Line2D([], [], color='k', ls='dashdot', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[2])
-    plt.legend(handles=[line1, line2, line3], loc='lower left', frameon=False, handletextpad=0.5, handlelength=1.5)
+#     line1 = mlines.Line2D([], [], color='k', ls='dashdot', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[2])
+    plt.legend(handles=[ line2, line3], loc='lower left', frameon=False, handletextpad=0.5, handlelength=1.5)
 
     plt.ylim(1e-50,1e-44)
     plt.xlabel(r'${\mathrm{L_\alpha}}$, [$erg/s$]')
@@ -552,8 +557,7 @@ def make_pL_Lya(zval_test, xHI_test):
         LF_interp1 = interpolate.interp1d(lum_lya[:,mm],norm_pLya[:,mm],fill_value=0., bounds_error=False)
         new_pLya[:,mm] = LF_interp1(lum_grid) #column values of pLya
     
-    return Muv_grid, new_pLya
-
+    return Muv_grid, new_pLya, norm_pLya, lum_lya
 
 #Defining lya LF function and all necessary eqs needed 
 
@@ -562,7 +566,7 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
     LFz_file = sorted(insensitive_glob(LFz_dir+ f'LF_pred_z{zval_test}.txt'))[0] 
     
     # Make p(L_Lya | Muv)
-    Muv_grid, new_pLya = make_pL_Lya(zval_test, xHI_test)
+    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test)
     
     #Load in z value file
     LF_tab = load_uvf_pandas(LFz_file) 
@@ -630,10 +634,10 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
 
 #         #Plot Lum vs PLum info
-#         LvsPLya(Muv_array, zval_test, lum_lya, norm_pLya, new_pLya)
+        LvsPLya(Muv_array, xHI_array, zval_test, lum_lya , norm_pLya , new_pLya)
 
-        #LF vs Konno plot info
-        log10_LF_plot(log10_LF,zval_test,xHI_test, plot = True)
+#         #LF vs Konno plot info
+#         log10_LF_plot(log10_LF,zval_test,xHI_test, plot = True)
         
 
     
