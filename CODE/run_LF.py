@@ -471,40 +471,33 @@ def LvsPLya(Muv_array, zval_test, lum_lya, norm_pLya, new_pLya):
 
 #Defines function for lya Luminosity probability
 def make_pL_Lya(zval_test, xHI_test):
+    """
+    make p(L | Muv) = p(EW | Muv) * dEW/dL
+
+    L_alpha = EW * Luv_lambda
+
+    Luv_lambda = Luv_nu * c/l_a^2
+
+    Luv_nu = 4pi(10pc)^2 * 10^(-0.4(Muv + 48.6))
+    """
     
     #Calling UV, EW, Konno files to obtain z and xHI values
     pW_file = sorted(insensitive_glob(pW_dir+f'ln_pWobs_*{xHI_test:.2f}.txt'))[0]
-    
-    
+        
     #Load in xHI value file
     pW_tab = load_uvf_pandas(pW_file)
     
     #Get Muv values from file as an array to use
     Muv_EW = np.array([float(Muv_val) for Muv_val in pW_tab.columns[1:]])
     
-    #Defines luminosity distance
-    d_l = P15.luminosity_distance(zval_test) 
-    
-    #Define apparent magnitude equation
-    def muv(Muv,d_l,zval_test): 
-        p1 = Muv
-        p2 = 5*(np.log10((d_l/pc_10).to(u.pc/u.pc))) #convert d_l/pc_10 to pc units and then dimensionless
-        ans = p1 + p2
-        return ans    
-    muv = muv(Muv_grid,d_l,zval_test)
-    
-    #Flux density of UV continuum at Lya wavelength from Muv for given zvals
-    fd_uv = f0 * (10**(-0.4*muv)) *(c/(wl_lya**2)) *((wl_lya/wl_uv)**(beta+2.0))
-    fd_units = fd_uv.to(u.erg/u.s* (u.cm**(-2))/u.Angstrom) ##use this to show units
-    
-    #Jacobian - partial EW / partial Lya Luminosity for given zvals 
-    jacobian = 1/((4*np.pi*d_l**2.)*fd_units)
-    
-    # Flux_Lya
-    f_lya = np.outer(pW_tab['W'],fd_units) * u.Angstrom
-    
-    #Lya luminosity 
-    lum_lya = (f_lya * (4*np.pi*d_l**2.)).to(u.erg/u.s)
+    # UV luminosity density
+    Luv_nu = 4*np.pi*(10*u.pc)**2. * 10**(-0.4*(Muv_grid +48.6)) * u.erg/u.s/u.cm**2./u.Hz
+    Luv_lambda = Luv_nu * (c/(wl_lya**2)) *(wl_lya/wl_uv)**(beta+2.0)
+
+    # Lya luminosity
+    lum_lya = (np.outer(pW_tab['W'],Luv_lambda) * u.Angstrom).to(u.erg/u.s)
+
+    jacobian = 1./Luv_lambda
     
     #Drops first column of EW values
     new_pW_tab = np.exp(pW_tab.drop('W',axis=1))
