@@ -728,6 +728,34 @@ def xHI_weighted_squared_deviation(xHI,z = 6.6):
                 
         return np.array(chi2)
 
+def depth_perMpc3_from_deg2(z, area_deg2, deltaz=0.5):
+    """
+    Calculate survey depth [per comoving Mpc^3] from an area in sq deg at redshift z
+    """
+    # length of survey in deg
+    len_deg = np.sqrt(area_deg2)*u.deg
+   
+    # length of survey in comoving Mpc
+    len_Mpc = (P15.kpc_comoving_per_arcmin(z=z) * len_deg).to(u.Mpc)
+    
+    # area of survey in comoving Mpc^2
+    area_Mpc2 = len_Mpc**2.
+    
+    # redshift length of survey
+    len_z = P15.comoving_distance(z + deltaz) - P15.comoving_distance(z - deltaz)
+    
+    # volume of survey in comoving Mpc^3
+    volume = area_Mpc2 * len_z
+    depth = 1./volume
+    
+    return depth
 
+def L_from_flux(z, flux):
+    """
+    Calculate luminosity in erg/s from flux in erg/s/cm^2
+    """
+    L = 4*np.pi*P15.luminosity_distance(z)**2. * flux * u.erg/u.s/u.cm**2.
+    
+    return L.to(u.erg/u.s)
 
     
