@@ -27,7 +27,7 @@ wl_lya = 1216 * u.Angstrom #angstrom
 wl_uv = 1500 * u.Angstrom #angstrom
 f0 = 3.631e-20 * (u.erg/u.s) * (u.cm**(-2)) * (u.Hz**(-1)) #flux_0 in erg s^-1 cm^-2 Hz^-1
 c = const.c #speed of light
-lum_grid = np.logspace(38,44, num = 200) #shape = (50,)
+lum_grid = np.logspace(38,44.5, num = 200) #shape = (50,)
 log10_lg = np.log10(lum_grid) #log10 luminosity grid in order to plot it on log10 scale similar to past works
 Muv_grid = np.round(np.arange(-24, -12, 0.1),1)
 
@@ -302,7 +302,6 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
     yerr_l = (Sh_tab['ndens']) - (Sh_tab['error_l']) 
     yerr_u = (Sh_tab['error_u']) - (Sh_tab['ndens'])
     yerror = np.array([yerr_l,yerr_u])
-#     yerror = np.array([Sh_tab['error_l'],Sh_tab['error_u']])
     
     
     Sh_ndens = np.array((Sh_tab['ndens']))
@@ -318,7 +317,6 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
 
         plt.semilogy(Sh_tab['log(L)'], (Sh_tab['ndens']),color=my_color, alpha=0.5, marker='p', lw=0)
         plt.errorbar(Sh_tab['log(L)'], (Sh_tab['ndens']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
-        #xerr = [Sh_tab['log(L)_l'],Sh_tab['log(L)_u']],
     
     if mean==True:
         return Sh_L, Sh_ndens, yerror_mean
@@ -334,15 +332,10 @@ def zheng_data_plt(zval_test, plot = False, mean = False):
     Z_file = sorted(insensitive_glob(Z_dir+f'Lya_LF_Zheng_z*{zval_test}.txt'))[0]
     Z_tab = load_uvf_pandas(Z_file)
     
-   
-#     yerr_l = 10**(Z_tab['log(ndens)']) - 10**(Z_tab['ndens_l2']) 
-#     yerr_u = 10**(Z_tab['ndens_u2']) - 10**(Z_tab['log(ndens)'])
+
     yerror = np.array([Z_tab['error_l'],Z_tab['error_u']])
-#     yerr_l = (Z_tab['ndens ']) - (Z_tab['error_l']) 
-#     yerr_u = (Z_tab['error_u']) - (Z_tab['ndens'])
-#     yerror = np.array([yerr_l,yerr_u])
+
     
-   
     Z_ndens = np.array(Z_tab['ndens'])
     Z_L = np.array(Z_tab['log(L)'])
     yerror_mean = np.mean(yerror,axis=0)
@@ -627,10 +620,10 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
 
 #         #Plot Lum vs PLum info
-        LvsPLya(Muv_array, xHI_array, zval_test, lum_lya , norm_pLya , new_pLya)
+#         LvsPLya(Muv_array, xHI_array, zval_test, lum_lya , norm_pLya , new_pLya)
 
 #         #LF vs Konno plot info
-#         log10_LF_plot(log10_LF,zval_test,xHI_test, plot = True)
+        log10_LF_plot(log10_LF,zval_test,xHI_test, plot = True)
         
 
     
