@@ -27,7 +27,9 @@ wl_lya = 1216 * u.Angstrom #angstrom
 wl_uv = 1500 * u.Angstrom #angstrom
 f0 = 3.631e-20 * (u.erg/u.s) * (u.cm**(-2)) * (u.Hz**(-1)) #flux_0 in erg s^-1 cm^-2 Hz^-1
 c = const.c #speed of light
-lum_grid = np.logspace(38,44.5, num = 200) #shape = (50,)
+# lum_grid = np.logspace(38,44.5, num = 200) #shape = (50,)
+lum_grid = np.logspace(42,44.5, num = 200) #shape = (50,)
+
 log10_lg = np.log10(lum_grid) #log10 luminosity grid in order to plot it on log10 scale similar to past works
 Muv_grid = np.round(np.arange(-24, -12, 0.1),1)
 
