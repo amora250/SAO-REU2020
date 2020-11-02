@@ -28,7 +28,12 @@ wl_uv = 1500 * u.Angstrom #angstrom
 f0 = 3.631e-20 * (u.erg/u.s) * (u.cm**(-2)) * (u.Hz**(-1)) #flux_0 in erg s^-1 cm^-2 Hz^-1
 c = const.c #speed of light
 # lum_grid = np.logspace(38,44.5, num = 200) #shape = (50,)
-lum_grid = np.logspace(42,44.5, num = 200) #shape = (50,)
+# lum_grid = np.logspace(42,44.5, num = 200) #shape = (50,)
+
+lum_grid = np.logspace(36,44.5, num = 500)
+# add 0 to the beginning of lum_grid
+lum_grid = np.insert(lum_grid, 0, 0)
+
 
 log10_lg = np.log10(lum_grid) #log10 luminosity grid in order to plot it on log10 scale similar to past works
 Muv_grid = np.round(np.arange(-24, -12, 0.1),1)
@@ -468,6 +473,25 @@ def LvsPLya(Muv_array,xHI_array, zval_test, lum_lya, norm_pLya, new_pLya):
     plt.ylabel(r'${ P (L_\alpha \;|\; M_\mathrm{UV})}$')
     return
 
+def normalize_pL(L, pLya, vb=False):
+    """
+    Normalize p(L) correctly
+    """
+    assert (L[0] == 0.).all(), 'L[0] != 0'
+    
+    norm_pLya = pLya.copy()
+
+    # first term of p(L) integral, (1-A) where these lum = 0 (the height in y)(-inf to 0)
+    one_minus_A  = pLya[0]
+    
+    # second term for lum>0 (L>0 to inf) transposed to correct matrix 
+    integral = np.trapz(pLya[1:].T, L[1:].T)
+            
+    # new normalized L>0 part divided original pLya values by integral to normalize
+    norm_pLya[0]  = one_minus_A
+    norm_pLya[1:] = (1-one_minus_A) * pLya[1:] / integral
+    
+    return norm_pLya
 
 #Defines function for lya Luminosity probability
 def make_pL_Lya(zval_test, xHI_test):
@@ -522,28 +546,23 @@ def make_pL_Lya(zval_test, xHI_test):
         else:
             pEW_vals_Muv_grid[:,mm] = pEW_vals[:,mm-m_index]
     
-    
     # P(Lya|Muv)
-    pLya = jacobian * pEW_vals_Muv_grid
+    pLya = jacobian.value * pEW_vals_Muv_grid
     
-    #Normalizes pLya to correctly plot lum_lya vs pLya
-    A1 = pLya[0] #first term of p(L) integral, where these lum = 0 (the height in y)(-inf to 0)
-    integral = np.trapz(pLya[1:].T,lum_lya.value[1:].T) #second term for lum>0 (L>0 to inf) transposed to correct matrix 
-    sum_int = A1 + integral #This is whole integral of p(L)dL
-    norm_pLya = pLya / sum_int #new normalized pLya, divide original pLya values by integral to normalize
-    new_A1 = norm_pLya[0]
-    integral2 = np.trapz(norm_pLya[1:].T,lum_lya.value[1:].T)
-    new_sum = new_A1 + integral2 #verifies that new normalized integral adds up to 1 
-    assert(new_sum.value.all() == 1.)
+    # make sure first element is the same as p(EW=0) = p(L=0) = (1-A)
+    pLya[0] = pEW_vals_Muv_grid[0]
     
+    # Normalizes pLya to correctly plot lum_lya vs pLya    
+    norm_pLya = normalize_pL(lum_lya.value, pLya)
     
     #Define an empty matrix in order to fill later with luminosity grid values and Muv values
     new_pLya = np.zeros((len(lum_grid), len(Muv_grid))) 
     
     for mm,Muv in enumerate (Muv_grid):
-        #Interpolating pLya and ndens values into a 1d array
-        LF_interp1 = interpolate.interp1d(lum_lya[:,mm],norm_pLya[:,mm],fill_value=0., bounds_error=False)
-        new_pLya[:,mm] = LF_interp1(lum_grid) #column values of pLya
+        # Interpolating pLya and L values into a 1d array (do interpolation on log values to make it smoother)
+        pL_interp      = interpolate.interp1d(np.log10(lum_lya[:,mm].value), np.log10(norm_pLya[:,mm]), fill_value=-np.inf, bounds_error=False)
+        new_pLya_Muv   = 10**pL_interp(np.log10(lum_grid))
+        new_pLya[:,mm] = normalize_pL(lum_grid, new_pLya_Muv) #column values of pLya
     
     return Muv_grid, new_pLya, norm_pLya, lum_lya
 
