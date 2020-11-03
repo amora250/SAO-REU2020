@@ -19,14 +19,22 @@ mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
 
 #Constants
-Muv_array = np.array([-22.0,-16.0]) #chosen Muv to test lum_lya vs Muv similar to EW vs Muv
+xHI_array = np.array([0.01, 0.36, 0.87])
+Muv_array = np.array([-22.0,-19.5]) #chosen Muv to test lum_lya vs Muv similar to EW vs Muv
 beta = -2.0 #usually -2 for high z galaxies as per spectrum as power law
 pc_10 = 10 * u.pc #1 pc to Mpc
 wl_lya = 1216 * u.Angstrom #angstrom
 wl_uv = 1500 * u.Angstrom #angstrom
 f0 = 3.631e-20 * (u.erg/u.s) * (u.cm**(-2)) * (u.Hz**(-1)) #flux_0 in erg s^-1 cm^-2 Hz^-1
 c = const.c #speed of light
-lum_grid = np.logspace(38,44, num = 200) #shape = (50,)
+# lum_grid = np.logspace(38,44.5, num = 200) #shape = (50,)
+# lum_grid = np.logspace(42,44.5, num = 200) #shape = (50,)
+
+lum_grid = np.logspace(36,44.5, num = 500)
+# add 0 to the beginning of lum_grid
+lum_grid = np.insert(lum_grid, 0, 0)
+
+
 log10_lg = np.log10(lum_grid) #log10 luminosity grid in order to plot it on log10 scale similar to past works
 Muv_grid = np.round(np.arange(-24, -12, 0.1),1)
 
@@ -301,7 +309,6 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
     yerr_l = (Sh_tab['ndens']) - (Sh_tab['error_l']) 
     yerr_u = (Sh_tab['error_u']) - (Sh_tab['ndens'])
     yerror = np.array([yerr_l,yerr_u])
-#     yerror = np.array([Sh_tab['error_l'],Sh_tab['error_u']])
     
     
     Sh_ndens = np.array((Sh_tab['ndens']))
@@ -317,7 +324,6 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
 
         plt.semilogy(Sh_tab['log(L)'], (Sh_tab['ndens']),color=my_color, alpha=0.5, marker='p', lw=0)
         plt.errorbar(Sh_tab['log(L)'], (Sh_tab['ndens']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
-        #xerr = [Sh_tab['log(L)_l'],Sh_tab['log(L)_u']],
     
     if mean==True:
         return Sh_L, Sh_ndens, yerror_mean
@@ -333,15 +339,10 @@ def zheng_data_plt(zval_test, plot = False, mean = False):
     Z_file = sorted(insensitive_glob(Z_dir+f'Lya_LF_Zheng_z*{zval_test}.txt'))[0]
     Z_tab = load_uvf_pandas(Z_file)
     
-   
-#     yerr_l = 10**(Z_tab['log(ndens)']) - 10**(Z_tab['ndens_l2']) 
-#     yerr_u = 10**(Z_tab['ndens_u2']) - 10**(Z_tab['log(ndens)'])
+
     yerror = np.array([Z_tab['error_l'],Z_tab['error_u']])
-#     yerr_l = (Z_tab['ndens ']) - (Z_tab['error_l']) 
-#     yerr_u = (Z_tab['error_u']) - (Z_tab['ndens'])
-#     yerror = np.array([yerr_l,yerr_u])
+
     
-   
     Z_ndens = np.array(Z_tab['ndens'])
     Z_L = np.array(Z_tab['log(L)'])
     yerror_mean = np.mean(yerror,axis=0)
@@ -436,75 +437,91 @@ def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
 
     return 
 
-def LvsPLya(Muv_array, zval_test, lum_lya, norm_pLya, new_pLya):
+def LvsPLya(Muv_array,xHI_array, zval_test, lum_lya, norm_pLya, new_pLya):
     '''
     Still needs to be fixed, new plot created with old code formatting!
     
     Plots relationship between Lum. and P(Lum.) for different Muv and xHI values
     '''
-    
-    for mm,Muv in enumerate (Muv_array):
-            if mm == 0: #first item in Muv_array, i.e. -18.0
-                ls = 'solid'
-                label = 'z = %.1f'%zval_test
-            elif mm == 1: #second item in Muv_array, i.e. -22.0 (will not show on xHI legend)
-                ls = 'dashed'
-                label = None
-            elif mm == 2: # Third item in Muv_array, i.e. -16.0
-                ls = 'dashdot'
-                plt.loglog(lum_lya[:,mm], norm_pLya[:,mm], ls=ls, color = my_color, label = label) #[:,mm] gets corresponding column than row [mm]
-                plt.plot(lum_grid, new_pLya[:,mm], ls=ls, color = 'blue')
+    for xHI in xHI_array:
+        for mm,Muv in enumerate (Muv_array):
+                if mm == 0: #first item in Muv_array, i.e. -18.0
+                    ls = 'solid'
+                    label = 'z = %.1f'%zval_test
+                    my_color = 'black'
+                elif mm == 1: #second item in Muv_array, i.e. -22.0 (will not show on xHI legend)
+                    ls = 'dashed'
+                    label = None
+                    my_color = 'purple'
+                elif mm == 2: # Third item in Muv_array, i.e. -16.0
+                    ls = 'dashdot'
+                    label = None
+                    my_color = 'gray'
+                    plt.loglog(lum_lya[:,mm], norm_pLya[:,mm], ls=ls, color = my_color, label = label) #[:,mm] gets corresponding column than row [mm]
+                    plt.plot(lum_grid, new_pLya[:,mm], ls=ls, color = 'blue')
 
     leg_zval = plt.legend(frameon=False, handletextpad=0.5)
     plt.gca().add_artist(leg_zval)
     #This is the legend for Muv values, -18.0 is solid, -22.0 is dashed, -16.0 is dash-dot
     line2 = mlines.Line2D([], [], color='k', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[0])
     line3 = mlines.Line2D([], [], color='k', ls='dashed', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[1])
-    line1 = mlines.Line2D([], [], color='k', ls='dashdot', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[2])
-    plt.legend(handles=[line1, line2, line3], loc='lower left', frameon=False, handletextpad=0.5, handlelength=1.5)
+#     line1 = mlines.Line2D([], [], color='k', ls='dashdot', label=r'$M_\mathrm{UV} = %.1f$' % Muv_array[2])
+    plt.legend(handles=[ line2, line3], loc='lower left', frameon=False, handletextpad=0.5, handlelength=1.5)
 
     plt.ylim(1e-50,1e-44)
     plt.xlabel(r'${\mathrm{L_\alpha}}$, [$erg/s$]')
     plt.ylabel(r'${ P (L_\alpha \;|\; M_\mathrm{UV})}$')
     return
 
+def normalize_pL(L, pLya, vb=False):
+    """
+    Normalize p(L) correctly
+    """
+    assert (L[0] == 0.).all(), 'L[0] != 0'
+    
+    norm_pLya = pLya.copy()
+
+    # first term of p(L) integral, (1-A) where these lum = 0 (the height in y)(-inf to 0)
+    one_minus_A  = pLya[0]
+    
+    # second term for lum>0 (L>0 to inf) transposed to correct matrix 
+    integral = np.trapz(pLya[1:].T, L[1:].T)
+            
+    # new normalized L>0 part divided original pLya values by integral to normalize
+    norm_pLya[0]  = one_minus_A
+    norm_pLya[1:] = (1-one_minus_A) * pLya[1:] / integral
+    
+    return norm_pLya
 
 #Defines function for lya Luminosity probability
 def make_pL_Lya(zval_test, xHI_test):
+    """
+    make p(L | Muv) = p(EW | Muv) * dEW/dL
+
+    L_alpha = EW * Luv_lambda
+
+    Luv_lambda = Luv_nu * c/l_a^2
+
+    Luv_nu = 4pi(10pc)^2 * 10^(-0.4(Muv + 48.6))
+    """
     
     #Calling UV, EW, Konno files to obtain z and xHI values
     pW_file = sorted(insensitive_glob(pW_dir+f'ln_pWobs_*{xHI_test:.2f}.txt'))[0]
-    
-    
+        
     #Load in xHI value file
     pW_tab = load_uvf_pandas(pW_file)
     
     #Get Muv values from file as an array to use
     Muv_EW = np.array([float(Muv_val) for Muv_val in pW_tab.columns[1:]])
     
-    #Defines luminosity distance
-    d_l = P15.luminosity_distance(zval_test) 
-    
-    #Define apparent magnitude equation
-    def muv(Muv,d_l,zval_test): 
-        p1 = Muv
-        p2 = 5*(np.log10((d_l/pc_10).to(u.pc/u.pc))) #convert d_l/pc_10 to pc units and then dimensionless
-        ans = p1 + p2
-        return ans    
-    muv = muv(Muv_grid,d_l,zval_test)
-    
-    #Flux density of UV continuum at Lya wavelength from Muv for given zvals
-    fd_uv = f0 * (10**(-0.4*muv)) *(c/(wl_lya**2)) *((wl_lya/wl_uv)**(beta+2.0))
-    fd_units = fd_uv.to(u.erg/u.s* (u.cm**(-2))/u.Angstrom) ##use this to show units
-    
-    #Jacobian - partial EW / partial Lya Luminosity for given zvals 
-    jacobian = 1/((4*np.pi*d_l**2.)*fd_units)
-    
-    # Flux_Lya
-    f_lya = np.outer(pW_tab['W'],fd_units) * u.Angstrom
-    
-    #Lya luminosity 
-    lum_lya = (f_lya * (4*np.pi*d_l**2.)).to(u.erg/u.s)
+    # UV luminosity density
+    Luv_nu = 4*np.pi*(10*u.pc)**2. * 10**(-0.4*(Muv_grid +48.6)) * u.erg/u.s/u.cm**2./u.Hz
+    Luv_lambda = Luv_nu * (c/(wl_lya**2)) *(wl_lya/wl_uv)**(beta+2.0)
+
+    # Lya luminosity
+    lum_lya = (np.outer(pW_tab['W'],Luv_lambda) * u.Angstrom).to(u.erg/u.s)
+
+    jacobian = 1./Luv_lambda
     
     #Drops first column of EW values
     new_pW_tab = np.exp(pW_tab.drop('W',axis=1))
@@ -529,31 +546,25 @@ def make_pL_Lya(zval_test, xHI_test):
         else:
             pEW_vals_Muv_grid[:,mm] = pEW_vals[:,mm-m_index]
     
-    
     # P(Lya|Muv)
-    pLya = jacobian * pEW_vals_Muv_grid
+    pLya = jacobian.value * pEW_vals_Muv_grid
     
-    #Normalizes pLya to correctly plot lum_lya vs pLya
-    A1 = pLya[0] #first term of p(L) integral, where these lum = 0 (the height in y)(-inf to 0)
-    integral = np.trapz(pLya[1:].T,lum_lya.value[1:].T) #second term for lum>0 (L>0 to inf) transposed to correct matrix 
-    sum_int = A1 + integral #This is whole integral of p(L)dL
-    norm_pLya = pLya / sum_int #new normalized pLya, divide original pLya values by integral to normalize
-    new_A1 = norm_pLya[0]
-    integral2 = np.trapz(norm_pLya[1:].T,lum_lya.value[1:].T)
-    new_sum = new_A1 + integral2 #verifies that new normalized integral adds up to 1 
-    assert(new_sum.value.all() == 1.)
+    # make sure first element is the same as p(EW=0) = p(L=0) = (1-A)
+    pLya[0] = pEW_vals_Muv_grid[0]
     
+    # Normalizes pLya to correctly plot lum_lya vs pLya    
+    norm_pLya = normalize_pL(lum_lya.value, pLya)
     
     #Define an empty matrix in order to fill later with luminosity grid values and Muv values
     new_pLya = np.zeros((len(lum_grid), len(Muv_grid))) 
     
     for mm,Muv in enumerate (Muv_grid):
-        #Interpolating pLya and ndens values into a 1d array
-        LF_interp1 = interpolate.interp1d(lum_lya[:,mm],norm_pLya[:,mm],fill_value=0., bounds_error=False)
-        new_pLya[:,mm] = LF_interp1(lum_grid) #column values of pLya
+        # Interpolating pLya and L values into a 1d array (do interpolation on log values to make it smoother)
+        pL_interp      = interpolate.interp1d(np.log10(lum_lya[:,mm].value), np.log10(norm_pLya[:,mm]), fill_value=-np.inf, bounds_error=False)
+        new_pLya_Muv   = 10**pL_interp(np.log10(lum_grid))
+        new_pLya[:,mm] = normalize_pL(lum_grid, new_pLya_Muv) #column values of pLya
     
-    return Muv_grid, new_pLya
-
+    return Muv_grid, new_pLya, norm_pLya, lum_lya
 
 #Defining lya LF function and all necessary eqs needed 
 
@@ -562,7 +573,7 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
     LFz_file = sorted(insensitive_glob(LFz_dir+ f'LF_pred_z{zval_test}.txt'))[0] 
     
     # Make p(L_Lya | Muv)
-    Muv_grid, new_pLya = make_pL_Lya(zval_test, xHI_test)
+    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test)
     
     #Load in z value file
     LF_tab = load_uvf_pandas(LFz_file) 
@@ -630,9 +641,9 @@ def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
 #         plot_jvsMuv(jacobian, Muv_EW, zval_test)
 
 #         #Plot Lum vs PLum info
-#         LvsPLya(Muv_array, zval_test, lum_lya, norm_pLya, new_pLya)
+#         LvsPLya(Muv_array, xHI_array, zval_test, lum_lya , norm_pLya , new_pLya)
 
-        #LF vs Konno plot info
+#         #LF vs Konno plot info
         log10_LF_plot(log10_LF,zval_test,xHI_test, plot = True)
         
 
@@ -731,6 +742,34 @@ def xHI_weighted_squared_deviation(xHI,z = 6.6):
                 
         return np.array(chi2)
 
+def depth_perMpc3_from_deg2(z, area_deg2, deltaz=0.5):
+    """
+    Calculate survey depth [per comoving Mpc^3] from an area in sq deg at redshift z
+    """
+    # length of survey in deg
+    len_deg = np.sqrt(area_deg2)*u.deg
+   
+    # length of survey in comoving Mpc
+    len_Mpc = (P15.kpc_comoving_per_arcmin(z=z) * len_deg).to(u.Mpc)
+    
+    # area of survey in comoving Mpc^2
+    area_Mpc2 = len_Mpc**2.
+    
+    # redshift length of survey
+    len_z = P15.comoving_distance(z + deltaz) - P15.comoving_distance(z - deltaz)
+    
+    # volume of survey in comoving Mpc^3
+    volume = area_Mpc2 * len_z
+    depth = 1./volume
+    
+    return depth
 
+def L_from_flux(z, flux):
+    """
+    Calculate luminosity in erg/s from flux in erg/s/cm^2
+    """
+    L = 4*np.pi*P15.luminosity_distance(z)**2. * flux * u.erg/u.s/u.cm**2.
+    
+    return L.to(u.erg/u.s)
 
     
