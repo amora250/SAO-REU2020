@@ -512,7 +512,7 @@ def make_pL_Lya(zval_test, xHI_test):
     pW_tab = load_uvf_pandas(pW_file)
     
     #Get Muv values from file as an array to use
-    Muv_EW = np.array([float(Muv_val) for Muv_val in pW_tab.columns[1:]])
+    Muv_EW = np.array([float(Muv_val) for Muv_val in pW_tab.columns[1:]])[35:61]
     
     # UV luminosity density
     Luv_nu = 4*np.pi*(10*u.pc)**2. * 10**(-0.4*(Muv_grid +48.6)) * u.erg/u.s/u.cm**2./u.Hz
