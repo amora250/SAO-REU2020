@@ -180,10 +180,10 @@ def konno_data_plt(zval_test, plot = False, mean = False):
 
     if plot==True:
         if zval_test == 5.7:
-            my_color = 'blue'
+            my_color = 'red'
             label2 = 'Konno+18'
         elif zval_test == 6.6:
-            my_color = 'red'
+            my_color = 'blue'
             label2 = 'Konno+18'
         else:
             my_color = 'orange'
@@ -253,10 +253,10 @@ def santos_data_plt(zval_test, plot = False):
 
     if plot==True:
         if zval_test == 5.7:
-            my_color = 'blue'
+            my_color = 'red'
             label2 = 'Santos+16'
         elif zval_test == 6.6:
-            my_color = 'red'
+            my_color = 'blue'
             label2 = 'Santos+16'
 
 
@@ -281,10 +281,10 @@ def ouchi_data_plt(zval_test, plot = False, mean = False):
 
     if plot==True:
         if zval_test == 5.7:
-            my_color = 'blue'
+            my_color = 'red'
             label2 = 'Ouchi+08'
         elif zval_test == 6.6:
-            my_color = 'red'
+            my_color = 'blue'
             label2 = 'Ouchi+10'
 
 
@@ -432,7 +432,9 @@ def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
     '''
     This is used to plot the model of the Lya LF at different xHI and z values
     '''
+#     label = 'z = %.1f'% zval_test + ', '+ '$\overline{x}_\mathrm{HI}$ ~ %.2f'% xHI_test
     plt.semilogy(log10_lg, log10_LF,label = '$\overline{x}_\mathrm{HI}$ = %.2f'%xHI_test)
+#     plt.semilogy(log10_lg, log10_LF,label = label)
 #     plt.semilogy(log10_lg, log10_LF,label = 'z = %.2f'%zval_test)
 
     return 
