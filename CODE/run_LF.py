@@ -435,7 +435,8 @@ def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
 #     label = 'z = %.1f'% zval_test + ', '+ '$\overline{x}_\mathrm{HI}$ ~ %.2f'% xHI_test
     plt.semilogy(log10_lg, log10_LF,label = '$\overline{x}_\mathrm{HI}$ = %.2f'%xHI_test)
 #     plt.semilogy(log10_lg, log10_LF,label = label)
-#     plt.semilogy(log10_lg, log10_LF,label = 'z = %.2f'%zval_test)
+#     plt.semilogy(log10_lg, log10_LF)
+
 
     return 
 
@@ -496,7 +497,7 @@ def normalize_pL(L, pLya, vb=False):
     return norm_pLya
 
 #Defines function for lya Luminosity probability
-def make_pL_Lya(zval_test, xHI_test):
+def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24):
     """
     make p(L | Muv) = p(EW | Muv) * dEW/dL
 
@@ -506,6 +507,9 @@ def make_pL_Lya(zval_test, xHI_test):
 
     Luv_nu = 4pi(10pc)^2 * 10^(-0.4(Muv + 48.6))
     """
+    
+    #Call Muv_grid here
+    Muv_grid = np.round(np.arange(Muv_bright, Muv_faint, 0.1),1)
     
     #Calling UV, EW, Konno files to obtain z and xHI values
     pW_file = sorted(insensitive_glob(pW_dir+f'ln_pWobs_*{xHI_test:.2f}.txt'))[0]
@@ -570,12 +574,12 @@ def make_pL_Lya(zval_test, xHI_test):
 
 #Defining lya LF function and all necessary eqs needed 
 
-def make_lya_LF(zval_test, xHI_test, F=1., plot=False, log=True):
+def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=False, log=True):
     #Calling UV, EW, Konno files to obtain z and xHI values
     LFz_file = sorted(insensitive_glob(LFz_dir+ f'LF_pred_z{zval_test}.txt'))[0] 
     
     # Make p(L_Lya | Muv)
-    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test)
+    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test, Muv_faint, Muv_bright)
     
     #Load in z value file
     LF_tab = load_uvf_pandas(LFz_file) 
