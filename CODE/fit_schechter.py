@@ -304,7 +304,7 @@ def schechter_fit(LFdict, zval_test, xHI_test, logL_min=41., logL_max=44.,
         plot_emcee_draws(sampler, LF.log10_lg, log10_LF, 
                             xlim=(logL_min-0.5, logL_max+0.5),
                             plotname=plotname, save=save)
-        plt.close()
+        plt.close('all')
 
     medians = get_emcee_medians(sampler)
     
