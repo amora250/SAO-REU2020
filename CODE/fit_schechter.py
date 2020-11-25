@@ -321,6 +321,7 @@ if __name__ == '__main__':
     LFdict = np.load('../data/allLFvals.npy', allow_pickle=True).item()
     z   = np.unique(np.array([k[0] for k in list(LFdict.keys())]))
     xHI = np.unique(np.array([k[1] for k in list(LFdict.keys())]))
+
     print('Loaded LF dictionary')
     print(z)
 
@@ -334,6 +335,7 @@ if __name__ == '__main__':
         results = pool.starmap(schechter_fit, input_params_iter)
 
     res_dict = {}
+    input_params_iter = input_params(LFdict, z, xHI, logL_min, logL_max, save=save)
     for i, x in enumerate(input_params_iter):
         res_dict[(x[1], x[2])] = results[i]
 
