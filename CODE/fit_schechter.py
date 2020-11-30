@@ -75,7 +75,7 @@ def ln_prior(theta):
     uniform prior on log Schechter parameters
     """
     alpha, logLstar, logPhistar = theta
-    if -4 < alpha < 0 and 40. < logLstar < 44. and -10 < logPhistar < -2:
+    if -6. < alpha < 0. and 40. < logLstar < 44. and -10 < logPhistar < -2:
         return 0.
     else:
         return -np.inf
