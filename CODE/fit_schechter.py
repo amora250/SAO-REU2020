@@ -27,30 +27,6 @@ parser.add_argument("--num_proc", type=int, help="number of processors to use fo
 # ---- flags ------
 parser.add_argument("--nosave", type=float, help="don't save plots, default = save")
 # ==============================================================================
-
-
-args = parser.parse_args()
-
-num_proc = os.cpu_count() - 1
-if args.num_proc:
-    num_proc = args.num_proc
-print(f'Running on {num_proc} cores')
-
-logL_min = 41.
-if args.logL_min:
-    logL_min = args.logL_min
-
-logL_max = 43.8
-if args.logL_max:
-    logL_max = args.logL_max
-
-print(f'Fitting LF between {logL_min} - {logL_max}')
-
-save = True
-if args.nosave:
-    save = False
-    print('Not saving figures')
-
 # ==============================================================================
 
 def schechter_logL(logL, alpha, logLstar, logPhistar):
@@ -316,6 +292,28 @@ def schechter_fit(LFdict, zval_test, xHI_test, logL_min=41., logL_max=44.,
 
 if __name__ == '__main__':
     
+    args = parser.parse_args()
+
+    num_proc = os.cpu_count() - 1
+    if args.num_proc:
+        num_proc = args.num_proc
+    print(f'Running on {num_proc} cores')
+
+    logL_min = 41.
+    if args.logL_min:
+        logL_min = args.logL_min
+
+    logL_max = 43.8
+    if args.logL_max:
+        logL_max = args.logL_max
+
+    print(f'Fitting LF between {logL_min} - {logL_max}')
+
+    save = True
+    if args.nosave:
+        save = False
+        print('Not saving figures')
+
     multiprocessing.set_start_method('spawn')
 
     LFdict = np.load('../data/allLFvals.npy', allow_pickle=True).item()
