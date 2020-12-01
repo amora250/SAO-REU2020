@@ -149,7 +149,7 @@ def fit_schechter_emcee(logL, LF_logL,
 
 def plot_emcee(sampler, 
                labels = [r'$\alpha$', r'$\log_{10} L^\star$', r'$\log_{10} \phi^\star$'],
-               discard=100, thin=1, truths=None,
+               discard=200, thin=1, truths=None,
                save=False, plotname='emcee.png'):
     
     # Chains
@@ -158,15 +158,16 @@ def plot_emcee(sampler,
     fig, axes = plt.subplots(len(labels), figsize=(8, 4), sharex=True)
     for i in range(len(labels)):
         ax = axes[i]
-        ax.plot(samples[:, :, i], "k", alpha=0.1)
+        ax.plot(samples[:, :, i], "k", alpha=0.1, rasterized=True)
         ax.axvline(discard)
         ax.set_xlim(0, len(samples))
         ax.set_ylabel(labels[i])
         ax.yaxis.set_label_coords(-0.1, 0.5)
 
     axes[-1].set_xlabel("step number")
+    plt.tight_layout()
     if save:
-        plt.savefig(plotname.replace('.png','_chains.png'), bbox_inches='tight')  
+        plt.savefig(plotname.replace('.p','_chains.p'), bbox_inches='tight')  
     
     # Corner
     flat_samples = sampler.get_chain(discard=discard, thin=thin, flat=True)
@@ -174,13 +175,13 @@ def plot_emcee(sampler,
     fig = corner.corner(flat_samples, labels=labels, quantiles=[.16, .50, .84], truths=truths, show_titles=True)
     
     if save:
-        plt.savefig(plotname.replace('.png','_corner.png'), bbox_inches='tight')    
+        plt.savefig(plotname.replace('.p','_corner.p'), bbox_inches='tight')    
     
     return
 
 def plot_emcee_draws(sampler, logL, LF_logL, Ndraw=100,
                      labels = [r'$\alpha$', r'$\log_{10} L^\star$', r'$\log_{10} \phi^\star$'],
-                     discard=100, thin=1,
+                     discard=200, thin=1,
                      xlim=(41,44), ylim=(1e-7, 1e-1),
                      save=False, plotname='emcee.png'):
     
@@ -221,14 +222,14 @@ def plot_emcee_draws(sampler, logL, LF_logL, Ndraw=100,
     plt.ylabel(r'$\phi[\mathrm{cMpc}^{-3}\, (\log_{10} L_\alpha)^{-1}]$')
 
     if save:
-        plt.savefig(plotname.replace('.png','_LFdraws.png'), bbox_inches='tight')
+        plt.savefig(plotname.replace('.p','_LFdraws.p'), bbox_inches='tight')
                     
     return
 
 # --------------------------------------------------------
 # Get params
 
-def get_emcee_medians(sampler, discard=100, thin=1):
+def get_emcee_medians(sampler, discard=200, thin=1):
     """
     Returns medians in array
     alpha, logLstar, logphistar
@@ -237,7 +238,7 @@ def get_emcee_medians(sampler, discard=100, thin=1):
     medians = np.percentile(flat_samples, 50, axis=0)
     return medians
 
-def get_emcee_params(sampler, discard=100, thin=1):
+def get_emcee_params(sampler, discard=200, thin=1):
     """
     Prints
 
