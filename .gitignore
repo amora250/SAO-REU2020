@@ -1,4 +1,5 @@
 .DS_Store
 *.pyc
-
+*checkpoint.ipynb
 *.icloud
+data/*
