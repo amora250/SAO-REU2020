@@ -497,7 +497,7 @@ def normalize_pL(L, pLya, vb=False):
     return norm_pLya
 
 #Defines function for lya Luminosity probability
-def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24):
+def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24, fixedpW = False):
     """
     make p(L | Muv) = p(EW | Muv) * dEW/dL
 
@@ -551,6 +551,10 @@ def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24):
         # Otherwise use the model p(EW | Muv)
         else:
             pEW_vals_Muv_grid[:,mm] = pEW_vals[:,mm-m_index]
+    for mm, Muv in enumerate(Muv_grid):
+        if fixedpW == True:
+            #Test with faint galaxies, use p(EW | Muv =-17)
+            pEW_vals_Muv_grid[:,mm] = pEW_vals[:,-1]
     
     # P(Lya|Muv)
     pLya = jacobian.value * pEW_vals_Muv_grid
@@ -572,14 +576,23 @@ def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24):
     
     return Muv_grid, new_pLya, norm_pLya, lum_lya
 
+def expectation_Lya(pL, Lmin = 36, Lmax = 44.5):
+    in_Lgrid = np.where((lum_grid >= 10**Lmin) & (lum_grid <= 10**Lmax))
+    norm_pL = pL / (np.trapz((pL[in_Lgrid].T),x=lum_grid[in_Lgrid]))
+    expec_L = np.trapz((lum_grid[in_Lgrid]*(norm_pL[in_Lgrid].T)),x=lum_grid[in_Lgrid])
+    
+    return expec_L
+
+                   
+
 #Defining lya LF function and all necessary eqs needed 
 
-def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=False, log=True):
+def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=False, log=True, fixedpW = False):
     #Calling UV, EW, Konno files to obtain z and xHI values
     LFz_file = sorted(insensitive_glob(LFz_dir+ f'LF_pred_z{zval_test}.txt'))[0] 
     
     # Make p(L_Lya | Muv)
-    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test, Muv_faint, Muv_bright)
+    Muv_grid, new_pLya, norm_pLya, lum_lya = make_pL_Lya(zval_test, xHI_test, Muv_faint, Muv_bright, fixedpW)
     
     #Load in z value file
     LF_tab = load_uvf_pandas(LFz_file) 
