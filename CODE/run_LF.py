@@ -126,6 +126,10 @@ Hu_data_dir = os.environ['LYA_DATA_DIR']+'data/models/'
 Hu_dir = pW_data_dir+'Lya_LF_Hu/' 
 Hu_files = sorted(insensitive_glob(Hu_dir+'Lya_LF_Hu_z*.txt'))
 
+#Calling Taylor data file
+T_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+T_dir = pW_data_dir+'Lya_LF_Taylor/' 
+T_files = sorted(insensitive_glob(Hu_dir+'Lya_LF_Taylor_z*.txt'))
 
 #Plot UV LF values vs interpolated Muv that is the same as EW 
 def plot_UV_LF(Muv_EW,new_ndens):
@@ -233,7 +237,7 @@ def hu_data_plt(zval_test, plot = False, mean = False):
         return Hu_L, Hu_ndens, yerror    
 
 
-def santos_data_plt(zval_test, plot = False):
+def santos_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Santos+16 to fit model
     
@@ -262,7 +266,12 @@ def santos_data_plt(zval_test, plot = False):
 
         plt.semilogy(Sa_tab['log(L)'], 10**(Sa_tab['log(ndens)']),color=my_color, alpha=0.5, marker='*', lw=0)
         plt.errorbar(Sa_tab['log(L)'], 10**(Sa_tab['log(ndens)']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
-    return Sa_L, Sa_ndens, yerror_mean
+    
+    if mean==True:
+        return Sa_L, Sa_ndens, yerror_mean
+    else:
+        return Sa_L, Sa_ndens, yerror
+
 
 def ouchi_data_plt(zval_test, plot = False, mean = False):
     '''
@@ -330,37 +339,35 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
     else:
         return Sh_L, Sh_ndens, yerror
 
-
-def zheng_data_plt(zval_test, plot = False, mean = False):
+def taylor_data_plt(zval_test, plot = False, mean = False):
     '''
-    Plots observational Lya LF data from Zheng+17 to fit model
+    Plots observational Lya LF data from Taylor+20 to fit model
     
     '''
-    Z_file = sorted(insensitive_glob(Z_dir+f'Lya_LF_Zheng_z*{zval_test}.txt'))[0]
-    Z_tab = load_uvf_pandas(Z_file)
-    
+    T_file = sorted(insensitive_glob(T_dir+f'Lya_LF_Taylor_z*{zval_test}.txt'))[0]
+    Ta_tab = load_uvf_pandas(T_file)
 
-    yerror = np.array([Z_tab['error_l'],Z_tab['error_u']])
-
+    yerr_l = 10**(Ta_tab['log(ndens)']) - 10**(Ta_tab['error_l']) 
+    yerr_u = 10**(Ta_tab['error_u']) - 10**(Ta_tab['log(ndens)'])
+    yerror = np.array([yerr_l,yerr_u])
     
-    Z_ndens = np.array(Z_tab['ndens'])
-    Z_L = np.array(Z_tab['log(L)'])
+    Ta_ndens = np.array(10**(Ta_tab['log(ndens)']))
+    Ta_L = np.array(Ta_tab['log(L)'])
     yerror_mean = np.mean(yerror,axis=0)
-    
+
 
     if plot==True:
-        if zval_test == 7.0:
-            my_color = 'green'
-            label2 = 'Zheng+17'
+        if zval_test == 6.6:
+            my_color = 'blue'
+            label2 = 'Taylor+20'
 
-
-        plt.semilogy(Z_tab['log(L)'], Z_tab['ndens'],color=my_color, alpha=0.5, marker='^', lw=0)
-        plt.errorbar(Z_tab['log(L)'], Z_tab['ndens'],yerr=yerror, fmt = ' ',capsize=5, color=my_color)
-        
-    if mean == True:
-        return Z_L, Z_ndens, yerror_mean
+        plt.semilogy(Ta_tab['log(L)'], 10**(Ta_tab['log(ndens)']),color=my_color, alpha=0.5, marker='d', lw=0)
+        plt.errorbar(Ta_tab['log(L)'], 10**(Ta_tab['log(ndens)']),yerr=yerror, fmt = ' ',capsize=5, color=my_color)
+    
+    if mean==True:
+        return Ta_L, Ta_ndens, yerror_mean
     else:
-        return Z_L, Z_ndens, yerror                  
+        return Ta_L, Ta_ndens, yerror     
                   
 def ota_data_plt(zval_test, plot = False, mean = False):
     '''
@@ -621,6 +628,7 @@ def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=F
     
     #Plotting Information
     if plot == True:
+        
         if zval_test == 5.7:
             
             #Plot Konno info 
@@ -628,24 +636,33 @@ def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=F
 
             #Plot Ouchi info
             ouchi_data_plt(zval_test, plot = True, mean = False)
+            
+            #Plot Santos Info
+            santos_data_plt(zval_test, plot = True, mean = False)
+            
         elif zval_test == 6.6:
             
             #Plot Konno info 
             konno_data_plt(zval_test, plot = True, mean = False)
 
             #Plot Ouchi info
-            ouchi_data_plt(zval_test, plot = True, mean = False)            
+            ouchi_data_plt(zval_test, plot = True, mean = False)    
+            
+            #Plot Santos Info
+            santos_data_plt(zval_test, plot = True, mean = False)        
+            
+            #Plot Taylor Info
+            taylor_data_plt(zval_test, plot = True, mean = False)            
         
         elif zval_test == 7.3:
+            
             #Plot Konno info 
             konno_data_plt(zval_test, plot = True, mean = False)
             
-#             #Plot Shibuya info
-#             shibuya_data_plt(zval_test, plot = True, mean = False)
+            #Plot Shibuya info -- need actual LFs not cumulative
+            shibuya_data_plt(zval_test, plot = True, mean = False)
         
         elif zval_test == 7.0:
-#             #Plot Zheng info
-#             zheng_data_plt(zval_test, plot = True, mean = False)
             
             #Plot Ota info
             ota_data_plt(zval_test, plot = True, mean = False)
