@@ -18,6 +18,11 @@ plt.style.use(['default','seaborn-colorblind','seaborn-ticks'])
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
 
+
+#***********************************************************************
+#***********************************************************************
+
+
 #Constants
 xHI_array = np.array([0.01, 0.36, 0.87])
 Muv_array = np.array([-22.0,-19.5]) #chosen Muv to test lum_lya vs Muv similar to EW vs Muv
@@ -43,6 +48,9 @@ xHI_list = np.array([0.01, 0.02, 0.05, 0.07, 0.09, 0.12, 0.15, 0.18, 0.22, 0.25,
                 0.66, 0.69, 0.72, 0.74, 0.76, 0.78, 0.80, 0.82, 0.84, 0.86, 0.87,
                 0.89, 0.90, 0.91, 0.92, 0.93, 0.94, 0.95])
 
+
+#***********************************************************************
+#***********************************************************************
 
 
 #Functions
@@ -77,59 +85,82 @@ LFz_files = sorted(insensitive_glob(LFz_dir+'LF_pred_z*.txt'))
 #calls each file in modelled data * will be replaced with corresponding zval
 
 #Calling EW files and their Muv values
-pW_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
+pW_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' #data folder for all obs folders
 pW_dir = pW_data_dir+'M18_z=7.0_lnpWobs_Muv/' #inside models folder call M18_z=7.0_lnpWobs_Muv folder
 pW_files = sorted(insensitive_glob(pW_dir+'ln_pWobs_*.txt')) #calls each file in modelled data * will be replaced with corresponding xHI
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+#LF data files
+
 #Calling Konno data file
-K_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 K_dir = pW_data_dir+'Lya_LF_Konno/' 
 K_files = sorted(insensitive_glob(K_dir+'Lya_LF_Konno_z*.txt')) 
 
 #Calling Ouchi data file
-O_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 O_dir = pW_data_dir+'Lya_LF_Ouchi/' 
 O_files = sorted(insensitive_glob(O_dir+'Lya_LF_Ouchi_z*.txt')) 
 
 #Calling Santos data file
-S_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 S_dir = pW_data_dir+'Lya_LF_Santos/' 
 S_files = sorted(insensitive_glob(S_dir+'Lya_LF_Santos_z*.txt')) 
 
-#Calling Luminosity Density info
-LD_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
-LD_dir = pW_data_dir+'LD/' 
-LD_files = sorted(insensitive_glob(LD_dir+'LD_info.txt')) 
-
 #Calling Shibuya data file
-Sh_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 Sh_dir = pW_data_dir+'Lya_LF_Shibuya/' 
 Sh_files = sorted(insensitive_glob(S_dir+'Lya_LF_Shibuya_z*.txt'))
 
 #Calling Zheng data file
-Z_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 Z_dir = pW_data_dir+'Lya_LF_Zheng/' 
 Z_files = sorted(insensitive_glob(Z_dir+'Lya_LF_Zheng_z*.txt'))
 
 #Calling Ota data file
-Ot_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 Ot_dir = pW_data_dir+'Lya_LF_Ota/' 
 Ot_files = sorted(insensitive_glob(Ot_dir+'Lya_LF_Ota_z*.txt'))
 
 #Calling Itoh data file
-It_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 It_dir = pW_data_dir+'Lya_LF_Itoh/' 
 It_files = sorted(insensitive_glob(It_dir+'Lya_LF_Itoh_z*.txt'))
 
 #Calling Hu data file
-Hu_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 Hu_dir = pW_data_dir+'Lya_LF_Hu/' 
 Hu_files = sorted(insensitive_glob(Hu_dir+'Lya_LF_Hu_z*.txt'))
 
 #Calling Taylor data file
-T_data_dir = os.environ['LYA_DATA_DIR']+'data/models/' 
 T_dir = pW_data_dir+'Lya_LF_Taylor/' 
 T_files = sorted(insensitive_glob(Hu_dir+'Lya_LF_Taylor_z*.txt'))
+
+
+#***********************************************************************
+#***********************************************************************
+
+
+#LD data files
+
+#Calling Luminosity Density info for dictionary
+LD_dir = pW_data_dir+'LD/' 
+LD_files = sorted(insensitive_glob(LD_dir+'LD_info.txt')) 
+
+#Calling Luminosity Density info for LD posterior
+#Calling Konno LD data file
+LD_K_files = sorted(insensitive_glob(LD_dir+'Lya_LD_Konno_z*.txt'))
+
+#Calling Hu LD data file
+LD_Hu_files = sorted(insensitive_glob(LD_dir+'Lya_LD_Hu_z*.txt'))
+
+#Calling Ota LD data file
+LD_Ot_files = sorted(insensitive_glob(LD_dir+'Lya_LD_Ota_z*.txt'))
+
+#Calling Itoh LD data file
+LD_It_files = sorted(insensitive_glob(LD_dir+'Lya_LD_Itoh_z*.txt'))
+
+
+
+#***********************************************************************
+#***********************************************************************
+
 
 #Plot UV LF values vs interpolated Muv that is the same as EW 
 def plot_UV_LF(Muv_EW,new_ndens):
@@ -146,6 +177,11 @@ def plot_UV_LF(Muv_EW,new_ndens):
     plt.show()
     return
 
+
+#***********************************************************************
+#***********************************************************************
+
+
 def plot_jvsMuv(jacobian, Muv_EW, zval_test):
     '''
     Plots relationship between lya/EW jacobian vs Muv values
@@ -161,9 +197,15 @@ def plot_jvsMuv(jacobian, Muv_EW, zval_test):
     plt.title('Jacobian vs $M_\mathrm{UV}$ for a Given Redshift ')
     return
 
-                  
+ 
+#***********************************************************************
+#***********************************************************************
+
+                 
 #Functions to call all observational data
-                  
+
+
+#Konno LF data
 def konno_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Konno+18,+14 to fit model
@@ -203,6 +245,35 @@ def konno_data_plt(zval_test, plot = False, mean = False):
         return Ko_L, Ko_ndens, yerror
 
 
+    
+#Konno LD data
+def LD_konno_data_plt(zval_test, mean = False):
+    '''
+    Plots observational Lya LD data from Konno to fit model
+    
+    '''
+    LD_Konno_file = sorted(insensitive_glob(LD_dir+f'Lya_LD_Konno_z*{zval_test}.txt'))[0]
+    LD_Konno_tab = load_uvf_pandas(LD_Konno_file)
+    
+   
+    yerr_l = 10**(LD_Konno_tab['log(LD)']) - 10**(LD_Konno_tab['error_l']) 
+    yerr_u = 10**(LD_Konno_tab['error_u']) - 10**(LD_Konno_tab['log(LD)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    LD_Konno = np.array(10**(LD_Konno_tab['log(LD)']))
+    yerror_mean = np.mean(yerror,axis=0)
+    
+        
+    if mean == True:
+        return LD_Konno, yerror_mean
+    else:
+        return LD_Konno, yerror       
+    
+#***********************************************************************
+#***********************************************************************
+
+
+
 def hu_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Hu+19 to fit model
@@ -235,6 +306,35 @@ def hu_data_plt(zval_test, plot = False, mean = False):
         return Hu_L, Hu_ndens, yerror_mean
     else:
         return Hu_L, Hu_ndens, yerror    
+
+
+#Hu LD data
+def LD_hu_data_plt(zval_test, mean = False):
+    '''
+    Plots observational Lya LD data from Hu to fit model
+    
+    '''
+    LD_Hu_file = sorted(insensitive_glob(LD_dir+f'Lya_LD_Hu_z*{zval_test}.txt'))[0]
+    LD_Hu_tab = load_uvf_pandas(LD_Hu_file)
+    
+   
+    yerr_l = 10**(LD_Hu_tab['log(LD)']) - 10**(LD_Hu_tab['error_l']) 
+    yerr_u = 10**(LD_Hu_tab['error_u']) - 10**(LD_Hu_tab['log(LD)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    LD_Hu = np.array(10**(LD_Hu_tab['log(LD)']))
+    yerror_mean = np.mean(yerror,axis=0)
+    
+        
+    if mean == True:
+        return LD_Hu, yerror_mean
+    else:
+        return LD_Hu, yerror  
+    
+    
+#***********************************************************************
+#***********************************************************************
+
 
 
 def santos_data_plt(zval_test, plot = False, mean = False):
@@ -273,6 +373,12 @@ def santos_data_plt(zval_test, plot = False, mean = False):
         return Sa_L, Sa_ndens, yerror
 
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def ouchi_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Ouchi+08,+10 to fit model
@@ -305,6 +411,12 @@ def ouchi_data_plt(zval_test, plot = False, mean = False):
         return Ou_L, Ou_ndens, yerror_mean
     else:
         return Ou_L, Ou_ndens, yerror
+
+
+#***********************************************************************
+#***********************************************************************
+
+
     
 def shibuya_data_plt(zval_test, plot = False, mean = False):
     '''
@@ -339,6 +451,12 @@ def shibuya_data_plt(zval_test, plot = False, mean = False):
     else:
         return Sh_L, Sh_ndens, yerror
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def taylor_data_plt(zval_test, plot = False, mean = False):
     '''
     Plots observational Lya LF data from Taylor+20 to fit model
@@ -368,6 +486,12 @@ def taylor_data_plt(zval_test, plot = False, mean = False):
         return Ta_L, Ta_ndens, yerror_mean
     else:
         return Ta_L, Ta_ndens, yerror     
+
+
+#***********************************************************************
+#***********************************************************************
+
+
                   
 def ota_data_plt(zval_test, plot = False, mean = False):
     '''
@@ -399,6 +523,35 @@ def ota_data_plt(zval_test, plot = False, mean = False):
         return Ot_L, Ot_ndens, yerror_mean
     else:
         return Ot_L, Ot_ndens, yerror        
+
+    
+#Ota LD data
+def LD_ota_data_plt(zval_test, mean = False):
+    '''
+    Plots observational Lya LD data from Ota to fit model
+    
+    '''
+    LD_Ota_file = sorted(insensitive_glob(LD_dir+f'Lya_LD_Ota_z*{zval_test}.txt'))[0]
+    LD_Ota_tab = load_uvf_pandas(LD_Ota_file)
+    
+   
+    yerr_l = 10**(LD_Ota_tab['log(LD)']) - 10**(LD_Ota_tab['error_l']) 
+    yerr_u = 10**(LD_Ota_tab['error_u']) - 10**(LD_Ota_tab['log(LD)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    LD_Ota = np.array(10**(LD_Ota_tab['log(LD)']))
+    yerror_mean = np.mean(yerror,axis=0)
+    
+        
+    if mean == True:
+        return LD_Ota, yerror_mean
+    else:
+        return LD_Ota, yerror      
+
+#***********************************************************************
+#***********************************************************************
+
+
     
 def itoh_data_plt(zval_test, plot = False, mean = False):
     '''
@@ -432,6 +585,34 @@ def itoh_data_plt(zval_test, plot = False, mean = False):
     else:
         return It_L, It_ndens, yerror      
                   
+#Itoh LD data
+def LD_itoh_data_plt(zval_test, mean = False):
+    '''
+    Plots observational Lya LD data from Itoh to fit model
+    
+    '''
+    LD_Itoh_file = sorted(insensitive_glob(LD_dir+f'Lya_LD_Itoh_z*{zval_test}.txt'))[0]
+    LD_Itoh_tab = load_uvf_pandas(LD_Itoh_file)
+    
+   
+    yerr_l = 10**(LD_Itoh_tab['log(LD)']) - 10**(LD_Itoh_tab['error_l']) 
+    yerr_u = 10**(LD_Itoh_tab['error_u']) - 10**(LD_Itoh_tab['log(LD)'])
+    yerror = np.array([yerr_l,yerr_u])
+    
+    LD_Itoh = np.array(10**(LD_Itoh_tab['log(LD)']))
+    yerror_mean = np.mean(yerror,axis=0)
+    
+        
+    if mean == True:
+        return LD_Itoh, yerror_mean
+    else:
+        return LD_Itoh, yerror 
+    
+    
+    
+#***********************************************************************
+#***********************************************************************
+
                   
 #Functions for plotting                  
                   
@@ -446,6 +627,12 @@ def log10_LF_plot(log10_LF,zval_test,xHI_test,plot = False):
 
 
     return 
+
+
+#***********************************************************************
+#***********************************************************************
+
+
 
 def LvsPLya(Muv_array,xHI_array, zval_test, lum_lya, norm_pLya, new_pLya):
     '''
@@ -483,6 +670,12 @@ def LvsPLya(Muv_array,xHI_array, zval_test, lum_lya, norm_pLya, new_pLya):
     plt.ylabel(r'${ P (L_\alpha \;|\; M_\mathrm{UV})}$')
     return
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def normalize_pL(L, pLya, vb=False):
     """
     Normalize p(L) correctly
@@ -502,6 +695,11 @@ def normalize_pL(L, pLya, vb=False):
     norm_pLya[1:] = (1-one_minus_A) * pLya[1:] / integral
     
     return norm_pLya
+
+
+#***********************************************************************
+#***********************************************************************
+
 
 #Defines function for lya Luminosity probability
 def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24, fixedpW = False):
@@ -583,6 +781,12 @@ def make_pL_Lya(zval_test, xHI_test, Muv_faint=-12, Muv_bright=-24, fixedpW = Fa
     
     return Muv_grid, new_pLya, norm_pLya, lum_lya
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def expectation_Lya(pL, Lmin = 36, Lmax = 44.5):
     in_Lgrid = np.where((lum_grid >= 10**Lmin) & (lum_grid <= 10**Lmax))
     norm_pL = pL / (np.trapz((pL[in_Lgrid].T),x=lum_grid[in_Lgrid]))
@@ -591,6 +795,10 @@ def expectation_Lya(pL, Lmin = 36, Lmax = 44.5):
     return expec_L
 
                    
+
+#***********************************************************************
+#***********************************************************************
+
 
 #Defining lya LF function and all necessary eqs needed 
 
@@ -690,6 +898,10 @@ def make_lya_LF(zval_test, xHI_test, F=1., Muv_faint=-12, Muv_bright=-24, plot=F
         return F*lya_LF
 
 
+
+#***********************************************************************
+#***********************************************************************
+
     
 #Minimization of xHI
 #Line models used for z = 6.6, 7.3
@@ -718,9 +930,14 @@ def xHI_model(xHI, obs_L, zval=6.6):
     
     return new_phi_Li
 
+
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 #Weighted squared deviation for xHI at z = 6.6, 7.3
-
-
 def xHI_weighted_squared_deviation(xHI,z = 6.6):
     """
     Chi = Konno, Ouchi, Shibuya ndens values - our ndens values at corresponding Konno, Ouchi, Shibuya lum grid * xHI model WRT xHI, obs. values, z
@@ -778,6 +995,12 @@ def xHI_weighted_squared_deviation(xHI,z = 6.6):
                 
         return np.array(chi2)
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def depth_perMpc3_from_deg2(z, area_deg2, deltaz=0.5):
     """
     Calculate survey depth [per comoving Mpc^3] from an area in sq deg at redshift z
@@ -800,6 +1023,12 @@ def depth_perMpc3_from_deg2(z, area_deg2, deltaz=0.5):
     
     return depth
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+
 def L_from_flux(z, flux):
     """
     Calculate luminosity in erg/s from flux in erg/s/cm^2
@@ -808,4 +1037,20 @@ def L_from_flux(z, flux):
     
     return L.to(u.erg/u.s)
 
+
+#***********************************************************************
+#***********************************************************************
+
+
+def LD_info(xHI,zval_test):
+    lum_lower = 10**42.4 #lower limit of luminosity grid
+    phiL = make_lya_LF(zval_test,xHI_test=xHI, F=0.974, plot=False, log=False)
+    LD = np.trapz((lum_grid*phiL)[lum_grid >= lum_lower],x=lum_grid[lum_grid >= lum_lower])
+    return LD
+
     
+
+#***********************************************************************
+#***********************************************************************
+
+
